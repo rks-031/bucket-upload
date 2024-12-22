@@ -19,12 +19,12 @@ function App() {
   }
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light p-5"> 
-      <Container className="py-5">
-        <div className="d-flex justify-content-between align-items-center mb-5">
-          <h1 className="mb-0">File Manager</h1>
-          {user ? (
-            <div className="d-flex align-items-center gap-3">
+    <div className="app-container d-flex align-items-center justify-content-center p-5">
+      <Container className="content-container py-5 text-center">
+        <h1 className="mb-5">File Manager</h1>
+        {user ? (
+          <>
+            <div className="d-flex justify-content-center align-items-center gap-3 mb-4">
               <img
                 src={user.picture}
                 alt={user.name}
@@ -36,20 +36,15 @@ function App() {
                 Sign Out
               </Button>
             </div>
-          ) : (
-            <Button variant="primary" size="lg" onClick={signIn}>
-              Sign in with Google
-            </Button>
-          )}
-        </div>
-        {user ? (
-          <>
             <FileUpload />
             <FileList />
           </>
         ) : (
-          <div className="py-4">
-            <p className="h4">Please sign in to manage your files</p>
+          <div>
+            <p className="h4 mb-4">Please sign in to manage your files</p>
+            <Button variant="primary" size="lg" onClick={signIn}>
+              Sign in with Google
+            </Button>
           </div>
         )}
       </Container>

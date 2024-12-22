@@ -1,0 +1,41 @@
+/* Add this CSS in a separate file (e.g., App.css) and import it in your App component */
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f5f5dc; /* Beige background */
+  }
+  
+  .app-container {
+    background-color: #f5f5dc; /* Beige background for the app */
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .content-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+  }
+  
+  h1 {
+    font-size: 2rem;
+    color: #333333;
+  }
+  
+  p {
+    font-size: 1.2rem;
+    color: #555555;
+  }
+  
+  button {
+    font-size: 1rem;
+  }
+  
+  button:focus {
+    box-shadow: none;
+  }
+  

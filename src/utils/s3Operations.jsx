@@ -4,10 +4,10 @@ import { s3Client } from './s3Config';
 
 const BUCKET_NAME = import.meta.env.VITE_AWS_BUCKET_NAME;
 
-export async function uploadFile(file) {
+export async function uploadFile(file, key) {
   const command = new PutObjectCommand({
     Bucket: BUCKET_NAME,
-    Key: `uploads/${Date.now()}-${file.name}`,
+    Key: key,
     Body: file,
     ContentType: file.type,
   });
@@ -25,10 +25,11 @@ export async function getFileUrl(key) {
   return await getSignedUrl(s3Client, command, { expiresIn: 3600 });
 }
 
-export async function listFiles() {
+
+export async function listFiles(prefix) {
   const command = new ListObjectsV2Command({
     Bucket: BUCKET_NAME,
-    Prefix: 'uploads/',
+    Prefix: prefix,
   });
 
   const response = await s3Client.send(command);

@@ -19,7 +19,12 @@ const FileList = () => {
   const loadFiles = async () => {
     try {
       setLoading(true);
-      const fileList = await listFiles(`users/${user.id}/files/`);
+      console.log('User ID:', user.id); // Log user ID
+      const prefix = `users/${user.name.replace(/\s+/g, '_')}/files/`;
+      console.log('Prefix:', prefix); // Log the prefix being used
+      const fileList = await listFiles(prefix);
+      console.log('File List:', fileList); // Log the file list response
+  
       const filesWithUrls = await Promise.all(
         fileList.map(async (file) => ({
           ...file,
@@ -27,6 +32,7 @@ const FileList = () => {
           name: file.Key.split('/').pop(),
         }))
       );
+      console.log('Files with URLs:', filesWithUrls); // Log processed files
       setFiles(filesWithUrls);
     } catch (error) {
       console.error('Error loading files:', error);
@@ -34,7 +40,6 @@ const FileList = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     if (user) {
       loadFiles();

@@ -28,10 +28,16 @@ export async function getFileUrl(key) {
 
 export async function listFiles(prefix) {
   const command = new ListObjectsV2Command({
-    Bucket: BUCKET_NAME,
-    Prefix: prefix,
+    Bucket: import.meta.env.VITE_AWS_BUCKET_NAME,
+    Prefix: prefix
   });
 
-  const response = await s3Client.send(command);
-  return response.Contents || [];
+  try {
+    const response = await s3Client.send(command);
+    console.log('S3 List Response:', response); // Log S3 response
+    return response.Contents || [];
+  } catch (error) {
+    console.error('S3 List Error:', error);
+    throw error;
+  }
 }

@@ -23,7 +23,7 @@ const FileUpload = () => {
 
     try {
       setUploading(true);
-      const key = `users/${user.id}/files/${Date.now()}-${file.name}`;
+      const key = `users/${user.name.replace(/\s+/g, '_')}/files/${Date.now()}-${file.name}`;
       await uploadFile(file, key);
       setMessage('File uploaded successfully!');
       setFile(null);

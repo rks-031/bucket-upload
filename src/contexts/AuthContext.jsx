@@ -5,18 +5,23 @@ const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [loading, setLoading] = useState(true);
 
   const handleCredentialResponse = (response) => {
     if (response.credential) {
       const decoded = JSON.parse(atob(response.credential.split('.')[1]));
-      setUser({
+      const userData = {
         id: decoded.sub,
         email: decoded.email,
         name: decoded.name,
         picture: decoded.picture
-      });
+      };
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
     }
   };
 
@@ -70,6 +75,7 @@ export const AuthProvider = ({ children }) => {
 
   const signOut = () => {
     setUser(null);
+    localStorage.removeItem('user');
     if (window.google?.accounts?.id) {
       window.google.accounts.id.disableAutoSelect();
     }

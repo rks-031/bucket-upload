@@ -57,3 +57,14 @@ export async function deleteFile(key) {
     throw error;
   }
 }
+
+
+export async function generateShareableLink(key) {
+  const command = new GetObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+  });
+
+  // Generate a URL that expires in 7 days for shared files
+  return await getSignedUrl(s3Client, command, { expiresIn: 7 * 24 * 60 * 60 });
+}

@@ -19,7 +19,7 @@ function App() {
   }
 
   return (
-    <div className="min-vh-100 bg-light">
+    <div className="min-vh-100" style={{ backgroundColor: '#fef8fc' }}>
       <Navbar bg="dark" variant="dark" expand="lg" className="mb-4">
         <Container>
           <Navbar.Brand className="text-wrap">BucketUpload - Aapka Apna File Manager</Navbar.Brand>

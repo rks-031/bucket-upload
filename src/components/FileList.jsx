@@ -1,19 +1,18 @@
-// src/components/FileList.jsx
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Spinner, Modal, Form, Toast } from 'react-bootstrap';
 import { useAuth } from '../contexts/AuthContext';
 import { listFiles, getFileUrl, deleteFile, generateShareableLink } from '../utils/s3Operations';
-import { sendShareEmail } from '../utils/emailService';
 
-const formatSize = (bytes) => {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-};
 
 const FileList = () => {
+  const formatSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
   const { user } = useAuth();
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,9 +20,9 @@ const FileList = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [shareEmail, setShareEmail] = useState('');
   const [shareLink, setShareLink] = useState('');
-  const [sharing, setSharing] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [sending, setSending] = useState(false);
 
   const loadFiles = async () => {
     try {
@@ -73,37 +72,39 @@ const FileList = () => {
       setShowShareModal(true);
     } catch (error) {
       console.error('Error generating share link:', error);
-      alert('Error generating share link. Please try again.');
+      setToastMessage('Error generating share link. Please try again.');
+      setShowToast(true);
     }
   };
 
   const handleSendEmail = async (e) => {
     e.preventDefault();
     if (!shareEmail) {
-      alert('Please enter an email address');
+      setToastMessage('Please enter an email address');
+      setShowToast(true);
       return;
     }
 
+    setSending(true);
     try {
-      setSharing(true);
-      await sendShareEmail(
+      await sendEmail(
         shareEmail,
         shareLink,
         selectedFile.name,
         user.name
       );
-      
+
+      setToastMessage('File shared successfully!');
       setShowToast(true);
-      setToastMessage('Share link sent successfully!');
       setShowShareModal(false);
       setShareEmail('');
       setSelectedFile(null);
     } catch (error) {
       console.error('Error sharing file:', error);
-      setToastMessage('Error sending share link. Please try again.');
+      setToastMessage('Failed to share file. Please try again.');
       setShowToast(true);
     } finally {
-      setSharing(false);
+      setSending(false);
     }
   };
 
@@ -112,12 +113,14 @@ const FileList = () => {
       await navigator.clipboard.writeText(shareLink);
       setToastMessage('Link copied to clipboard!');
       setShowToast(true);
+      setShowShareModal(false);
     } catch (error) {
       console.error('Error copying link:', error);
       setToastMessage('Error copying link. Please try again.');
       setShowToast(true);
     }
   };
+
 
   if (loading) {
     return (
@@ -149,24 +152,29 @@ const FileList = () => {
               <td>{new Date(file.LastModified).toLocaleString()}</td>
               <td>
                 <div className="d-flex gap-2">
-                  <Button 
-                    variant="success" 
+                  <Button
+                    variant="success"
                     size="sm"
                     onClick={() => window.open(file.url, '_blank')}
                   >
                     Download
                   </Button>
-                  <Button 
-                    variant="danger" 
+                  <Button
+                    variant="danger"
                     size="sm"
                     onClick={() => handleDelete(file.Key)}
                   >
                     Delete
                   </Button>
-                  <Button 
-                    variant="info" 
+                  <Button
+                    variant="info"
                     size="sm"
                     onClick={() => handleShare(file)}
+                    style={{ 
+                      backgroundColor: '#FF8C00', 
+                      borderColor: '#FF8C00',
+                      color: 'white'
+                    }}
                   >
                     Share
                   </Button>
@@ -188,44 +196,33 @@ const FileList = () => {
           <Modal.Title>Share File</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form onSubmit={handleSendEmail}>
-            <Form.Group className="mb-3">
-              <Form.Label>Share with (email):</Form.Label>
+          <div className="mb-3">
+            <Form.Label>Share Link:</Form.Label>
+            <div className="d-flex gap-2">
               <Form.Control
-                type="email"
-                placeholder="Enter email address"
-                value={shareEmail}
-                onChange={(e) => setShareEmail(e.target.value)}
-                required
+                type="text"
+                value={shareLink}
+                readOnly
               />
-            </Form.Group>
-            <div className="mb-3">
-              <Form.Label>Share Link:</Form.Label>
-              <div className="d-flex gap-2">
-                <Form.Control
-                  type="text"
-                  value={shareLink}
-                  readOnly
-                />
-                <Button 
-                  variant="outline-primary"
-                  onClick={handleCopyLink}
-                >
-                  Copy
-                </Button>
-              </div>
-            </div>
-            <div className="d-flex justify-content-end gap-2">
-              <Button variant="secondary" onClick={() => setShowShareModal(false)}>
-                Cancel
-              </Button>
-              <Button variant="primary" type="submit" disabled={sharing}>
-                {sharing ? 'Sending...' : 'Send Email'}
+              <Button
+                variant="primary"
+                onClick={handleCopyLink}
+              >
+                Copy
               </Button>
             </div>
-          </Form>
+          </div>
+          <div className="text-muted small">
+            This link will expire in 3 days.
+          </div>
         </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowShareModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
       </Modal>
+
 
       {/* Toast Notification */}
       <Toast

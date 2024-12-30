@@ -17,7 +17,7 @@ https://bucket-upload.vercel.app/
 
 ## Tech Stack
 
-`Vite + ReactJs`, `Google OAuth`, `AWS S3`, `EmailJS`
+`Vite + ReactJs`, `Google OAuth`, `AWS Simple Storage Service(S3) Buckets`, `Vercel`
 
 ## Maintainer
 

@@ -65,6 +65,6 @@ export async function generateShareableLink(key) {
     Key: key,
   });
 
-  // Generate a URL that expires in 7 days for shared files
-  return await getSignedUrl(s3Client, command, { expiresIn: 7 * 24 * 60 * 60 });
+  // Generate a URL that expires in 3 days for shared files
+  return await getSignedUrl(s3Client, command, { expiresIn: 3 * 24 * 60 * 60 });
 }

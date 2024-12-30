@@ -1,4 +1,4 @@
-import { PutObjectCommand, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { PutObjectCommand, GetObjectCommand, ListObjectsV2Command, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { s3Client } from './s3Config';
 
@@ -38,6 +38,22 @@ export async function listFiles(prefix) {
     return response.Contents || [];
   } catch (error) {
     console.error('S3 List Error:', error);
+    throw error;
+  }
+}
+
+
+export async function deleteFile(key) {
+  const command = new DeleteObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+  });
+
+  try {
+    await s3Client.send(command);
+    return true;
+  } catch (error) {
+    console.error('S3 Delete Error:', error);
     throw error;
   }
 }

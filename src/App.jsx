@@ -22,9 +22,9 @@ function App() {
     <div className="min-vh-100 bg-light">
       <Navbar bg="dark" variant="dark" expand="lg" className="mb-4">
         <Container>
-          <Navbar.Brand>BucketUpload - Aapka Apna File Manager</Navbar.Brand>
+          <Navbar.Brand className="text-wrap">BucketUpload - Aapka Apna File Manager</Navbar.Brand>
           {user && (
-            <div className="d-flex align-items-center gap-3">
+            <div className="d-flex align-items-center gap-3 user-info">
               <img
                 src={user.picture}
                 alt={user.name}

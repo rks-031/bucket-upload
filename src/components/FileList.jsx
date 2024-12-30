@@ -133,7 +133,7 @@ const FileList = () => {
   }
 
   return (
-    <div>
+    <div className="table-responsive">
       <h3 className="mb-4">Uploaded Files</h3>
       <Table striped bordered hover>
         <thead>
@@ -151,10 +151,11 @@ const FileList = () => {
               <td>{formatSize(file.Size)}</td>
               <td>{new Date(file.LastModified).toLocaleString()}</td>
               <td>
-                <div className="d-flex gap-2">
+                <div className="d-flex gap-2 action-buttons">
                   <Button
                     variant="success"
                     size="sm"
+                    className="w-100"
                     onClick={() => window.open(file.url, '_blank')}
                   >
                     Download
@@ -162,6 +163,7 @@ const FileList = () => {
                   <Button
                     variant="danger"
                     size="sm"
+                    className="w-100"
                     onClick={() => handleDelete(file.Key)}
                   >
                     Delete
@@ -170,6 +172,7 @@ const FileList = () => {
                     variant="info"
                     size="sm"
                     onClick={() => handleShare(file)}
+                    className="w-100"
                     style={{ 
                       backgroundColor: '#FF8C00', 
                       borderColor: '#FF8C00',

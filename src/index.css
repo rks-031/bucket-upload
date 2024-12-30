@@ -1,0 +1,16 @@
+@media (max-width: 768px) {
+    .action-buttons {
+      flex-direction: column !important;
+      gap: 0.5rem !important;
+    }
+  
+    .table-responsive {
+      font-size: 0.9rem;
+    }
+  
+    .user-info {
+      flex-direction: column;
+      text-align: center;
+      gap: 0.5rem !important;
+    }
+  }

@@ -19,6 +19,12 @@ https://bucket-upload.vercel.app/
 
 `Vite + ReactJs`, `Google OAuth`, `AWS Simple Storage Service(S3) Buckets`, `Vercel`
 
+## Permissions
+
+![alt text](<Screenshot 2025-02-08 155552.png>)
+
+![alt text](<Screenshot 2025-02-08 160733.png>)
+
 ## Maintainer
 
 `Rajnish Kumar Singh`

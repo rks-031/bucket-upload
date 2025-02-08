@@ -45,7 +45,6 @@ const FileUpload = () => {
             <Form.Control
               type="file"
               onChange={handleFileChange}
-              accept="image/*,video/*,.pdf,.doc,.docx"
               disabled={uploading}
             />
           </div>

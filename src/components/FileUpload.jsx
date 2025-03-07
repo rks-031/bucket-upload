@@ -1,82 +1,85 @@
 import React, { useState } from 'react';
-import { Form, Button, Alert, ProgressBar } from 'react-bootstrap';
+import { Form, Button, Alert, ProgressBar, ListGroup } from 'react-bootstrap';
 import { useAuth } from '../contexts/AuthContext';
 import { uploadFile } from '../utils/s3Operations';
 
 const FileUpload = () => {
   const { user } = useAuth();
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [message, setMessage] = useState('');
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({});
-
+  
   const MAX_FILES = 5;
 
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
-
-    if(selectedFiles.length>MAX_FILES){
-      setMessage(`You can upload only ${MAX_FILES} files at a time.`);
+    
+    if (selectedFiles.length > MAX_FILES) {
+      setMessage(`You can only upload a maximum of ${MAX_FILES} files at once.`);
       return;
     }
-
+    
     setFiles(selectedFiles);
     setMessage('');
   };
 
-  const removeFile = (index) =>{
+  const removeFile = (index) => {
     setFiles(files.filter((_, i) => i !== index));
-  }
+  };
 
   const handleUpload = async (e) => {
     e.preventDefault();
     if (files.length === 0) {
-      setMessage('Please select atleast one file first!');
+      setMessage('Please select at least one file first!');
       return;
     }
 
     setUploading(true);
     setMessage('');
     
-    try{
+    try {
+      // Initialize progress for each file
       const initialProgress = {};
-      files.forEach((file,index) => {
+      files.forEach((file, index) => {
         initialProgress[index] = 0;
       });
       setUploadProgress(initialProgress);
       
-      //upload each file sequentially
-      for(let i = 0;i<files.length;i++){
+      // Upload each file sequentially
+      for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const key = `users/${user.name.replace(/\s+/g, '_')}/files/${Date.now()}-${file.name}`;
-
-        await uploadFile(file,key,(progress)=>{
-          setUploadProgress(prev=>({
+        
+        // Upload the file and track progress
+        await uploadFile(file, key, (progress) => {
+          setUploadProgress(prev => ({
             ...prev,
-            [i]:progress
+            [i]: progress
           }));
         });
-
-        //mark as completed
-        setUploadProgress(prev=>({
+        
+        // Mark as completed
+        setUploadProgress(prev => ({
           ...prev,
-          [i]:100
+          [i]: 100
         }));
       }
+      
       setMessage('All files uploaded successfully!');
       setFiles([]);
       e.target.reset();
-      window.dispatchEvent(new Event('filesUpload'));
-    }catch(error){
+      window.dispatchEvent(new Event('filesUploaded'));
+    } catch (error) {
       setMessage('Error uploading files: ' + error.message);
-    }finally{
+    } finally {
       setUploading(false);
     }
   };
 
   return (
     <div className="mb-4">
-      <h3 className="mb-4">Upload File</h3>
+      <h3 className="mb-4">Upload Files</h3>
       <Form onSubmit={handleUpload}>
         <div className="row">
           <div className="col-sm-12 col-md-8 mb-3">
@@ -87,7 +90,7 @@ const FileUpload = () => {
               disabled={uploading}
               multiple
             />
-            <Form.Text className='text-muted'>
+            <Form.Text className="text-muted">
               Maximum 5 files can be uploaded at once.
             </Form.Text>
           </div>
@@ -133,7 +136,7 @@ const FileUpload = () => {
           </ListGroup>
         </div>
       )}
-
+      
       {message && (
         <Alert
           className="mt-3"

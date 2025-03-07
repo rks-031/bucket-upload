@@ -8,30 +8,68 @@ const FileUpload = () => {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({});
+
+  const MAX_FILES = 5;
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-    setMessage('');
-  };
+    const selectedFiles = Array.from(e.target.files);
 
-  const handleUpload = async (e) => {
-    e.preventDefault();
-    if (!file) {
-      setMessage('Please select a file first!');
+    if(selectedFiles.length>MAX_FILES){
+      setMessage(`You can upload only ${MAX_FILES} files at a time.`);
       return;
     }
 
-    try {
-      setUploading(true);
-      const key = `users/${user.name.replace(/\s+/g, '_')}/files/${Date.now()}-${file.name}`;
-      await uploadFile(file, key);
-      setMessage('File uploaded successfully!');
-      setFile(null);
+    setFiles(selectedFiles);
+    setMessage('');
+  };
+
+  const removeFile = (index) =>{
+    setFiles(files.filter((_, i) => i !== index));
+  }
+
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    if (files.length === 0) {
+      setMessage('Please select atleast one file first!');
+      return;
+    }
+
+    setUploading(true);
+    setMessage('');
+    
+    try{
+      const initialProgress = {};
+      files.forEach((file,index) => {
+        initialProgress[index] = 0;
+      });
+      setUploadProgress(initialProgress);
+      
+      //upload each file sequentially
+      for(let i = 0;i<files.length;i++){
+        const file = files[i];
+        const key = `users/${user.name.replace(/\s+/g, '_')}/files/${Date.now()}-${file.name}`;
+
+        await uploadFile(file,key,(progress)=>{
+          setUploadProgress(prev=>({
+            ...prev,
+            [i]:progress
+          }));
+        });
+
+        //mark as completed
+        setUploadProgress(prev=>({
+          ...prev,
+          [i]:100
+        }));
+      }
+      setMessage('All files uploaded successfully!');
+      setFiles([]);
       e.target.reset();
-      window.dispatchEvent(new Event('fileUploaded'));
-    } catch (error) {
-      setMessage('Error uploading file: ' + error.message);
-    } finally {
+      window.dispatchEvent(new Event('filesUpload'));
+    }catch(error){
+      setMessage('Error uploading files: ' + error.message);
+    }finally{
       setUploading(false);
     }
   };
@@ -47,13 +85,17 @@ const FileUpload = () => {
               onChange={handleFileChange}
               accept="image/*,video/*,.pdf,.doc,.docx,.txt,.csv,.xlsx,.pptx,.zip,.tar,.mp3,.mp4"
               disabled={uploading}
+              multiple
             />
+            <Form.Text className='text-muted'>
+              Maximum 5 files can be uploaded at once.
+            </Form.Text>
           </div>
           <div className="col-sm-12 col-md-4">
             <Button
               type="submit"
               variant="primary"
-              disabled={uploading}
+              disabled={uploading || files.length === 0}
               className="w-100"
             >
               {uploading ? 'Uploading...' : 'Upload'}
@@ -61,9 +103,37 @@ const FileUpload = () => {
           </div>
         </div>
       </Form>
-      {uploading && (
-        <ProgressBar animated now={100} className="mt-3" />
+      
+      {files.length > 0 && (
+        <div className="mt-3">
+          <h5>Selected Files ({files.length}/{MAX_FILES}):</h5>
+          <ListGroup>
+            {files.map((file, index) => (
+              <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
+                <div className="text-truncate" style={{ maxWidth: '70%' }}>
+                  {file.name} ({(file.size / 1024).toFixed(2)} KB)
+                </div>
+                {uploading ? (
+                  <ProgressBar 
+                    now={uploadProgress[index] || 0} 
+                    label={`${uploadProgress[index] || 0}%`} 
+                    style={{ width: '20%', minWidth: '100px' }} 
+                  />
+                ) : (
+                  <Button 
+                    variant="outline-danger" 
+                    size="sm" 
+                    onClick={() => removeFile(index)}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
+        </div>
       )}
+
       {message && (
         <Alert
           className="mt-3"

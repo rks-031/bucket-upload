@@ -49,7 +49,7 @@ const FileUpload = () => {
       // Upload each file sequentially
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const key = `users/${user.name.replace(/\s+/g, '_')}/files/${Date.now()}-${file.name}`;
+        const key = `users/${user.id}/files/${Date.now()}-${file.name}`; // Use user.id for consistency
         
         // Upload the file and track progress
         await uploadFile(file, key, (progress) => {

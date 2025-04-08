@@ -1,12 +1,14 @@
 import React from 'react';
-import { Container, Navbar, Button } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import FileUpload from './components/FileUpload';
 import FileList from './components/FileList';
+import Dashboard from './components/Dashboard';
+import NavbarComponent from './components/NavbarComponent';
 import { useAuth } from './contexts/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
-  const { user, loading, signIn, signOut } = useAuth();
+  const { user, loading, signOut } = useAuth();
 
   if (loading) {
     return (
@@ -20,25 +22,7 @@ function App() {
 
   return (
     <div className="min-vh-100" style={{ backgroundColor: '#fef8fc' }}>
-      <Navbar bg="dark" variant="dark" expand="lg" className="mb-4">
-        <Container>
-          <Navbar.Brand className="text-wrap">BucketUpload - Aapka Apna File Manager</Navbar.Brand>
-          {user && (
-            <div className="d-flex align-items-center gap-3 user-info">
-              <img
-                src={user.picture}
-                alt={user.name}
-                className="rounded-circle"
-                style={{ width: '32px', height: '32px' }}
-              />
-              <span className="text-light">{user.name}</span>
-              <Button variant="outline-light" size="sm" onClick={signOut}>
-                Sign Out
-              </Button>
-            </div>
-          )}
-        </Container>
-      </Navbar>
+      <NavbarComponent user={user} signOut={signOut} />
 
       <Container className="py-4">
         {user ? (
@@ -47,12 +31,7 @@ function App() {
             <FileList />
           </>
         ) : (
-          <div className="text-center">
-            <p className="h4 mb-4">Please sign in to manage your files</p>
-            <Button variant="primary" size="lg" onClick={signIn}>
-              Sign in with Google
-            </Button>
-          </div>
+          <Dashboard />
         )}
       </Container>
     </div>

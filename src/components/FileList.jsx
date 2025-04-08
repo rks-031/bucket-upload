@@ -27,7 +27,7 @@ const FileList = () => {
   const loadFiles = async () => {
     try {
       setLoading(true);
-      const prefix = `users/${user.name.replace(/\s+/g, '_')}/files/`;
+      const prefix = `users/${user.id}/files/`; // Use user.id for consistency
       const fileList = await listFiles(prefix);
       const filesWithUrls = await Promise.all(
         fileList.map(async (file) => ({
